@@ -13,6 +13,21 @@ slave/master terms.
 
 ## Development
 
+### Installing SignalK Server
+
+The installation process is described in the
+[SignalK documentation](https://github.com/SignalK/signalk-server). You can either
+make Modbus (mock) device interface available for Docker image or install the SignalK
+server from git:
+
+```
+git clone https://github.com/SignalK/signalk-server.git
+cd signalk-server
+npm install
+npm run build:all
+bin/signalk-server
+```
+
 ### Cloning the Plugin
 
 To install the plugin into SignalK for development first clone the repository and link the npm module:
@@ -27,7 +42,7 @@ Then go to the SignalK configuration directory (probably `~/.signalk`)  and link
 
 ```
 $ cd .signalk
-$ npm link @mplattu/signalk-modbus-serial-client
+$ npm link @mplattu/signalk-modbus-serial-plugin
 ```
 
 The plugin should now be installed and visible when the server has restarted.
@@ -56,3 +71,13 @@ $ node modbus-mock-server.js
 ```
 
 Now you have a mock server listening to `/tmp/pty-modbus-client` (115200 bps) which serves data.
+
+The plugin configuration file `signalk-modbus-serial-client.json.test` reads all data fields
+served by the mock server. Copy this to your SignalK server plugin configuration directory
+(probably `~/.signalk/plugin-config-data/`), e.g.
+
+```
+cp signalk-modbus-serial-client.json.test ~/.signalk/plugin-config-data/signalk-modbus-serial-client.json
+```
+
+Restart the server to make configuration effective.

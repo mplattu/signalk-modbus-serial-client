@@ -1,34 +1,42 @@
-const PLUGIN_ID = 'signalk-modbus-client';
-const PLUGIN_NAME = 'SignalK Modbus client';
+const PLUGIN_ID = 'signalk-modbus-serial-client';
+const PLUGIN_NAME = 'SignalK Modbus RTU/Serial client';
 module.exports = function(app) {
   var plugin = {};
-  const ModbusRTU = require("modbus-serial");
+  const Modbus = require("jsmodbus");
   var clients = [];
-  var promises = [];
   const jexl = require("jexl");
   var timers = [];
 
   plugin.id = PLUGIN_ID;
   plugin.name = PLUGIN_NAME;
-  plugin.description = 'Plugin to import data via modbus';
+  plugin.description = 'Plugin to import data via Modbus RTU/serial';
 
   /**
    * Send a single update to SignalK.
    */
-  function handleData(data, mapping, slaveID, expression) {
+  function handleData(data, mapping, serverID, expression) {
     app.debug(data);
+
     var i;
-    switch (String(mapping.dataType)) {
-      case 'uint16':
-      case 'int16':
-        i = data.data[0];
-        break;
-      case 'uint32':
-      case 'int32':
-      case 'float':
-        i = (data.data[0] << 16) | data.data[1];
-        break;
+
+    const buffer = data.response._body._valuesAsBuffer
+
+    if (data.response._body._fc == 1 || data.response._body._fc == 2) {
+      i = buffer.readUInt8(0);
     }
+    else if (String(mapping.dataType) == 'uint16') {
+      i = buffer.readUInt16BE(0);
+    }
+    else if (String(mapping.dataType) == 'int16') {
+      i = buffer.readInt16BE(0);
+    }
+    else {
+      app.debug("Don't know how to handle this mapping/data - check your configuration")
+      app.debug(mapping)
+      app.debug(data)
+      return
+    }
+
     // context for jexl, x is the data, other constants can be added here
     var context = {
       x: i
@@ -41,7 +49,7 @@ module.exports = function(app) {
         value: value
       }],
       context: app.getSelfPath('uuid'),
-      $source: "modbus-tcp." + slaveID + "." + mapping.register + "." + mapping.operation,
+      $source: "modbus-serial." + serverID + "." + mapping.register + "." + mapping.operation,
       timestamp: new Date().toISOString()
     };
 
@@ -64,21 +72,10 @@ module.exports = function(app) {
    * Ask the server for the contents of a single register.
    * calls handleData to send the data to SignalK
    */
-  function pollModbus(client, mapping, slaveID, expression) {
-    client.setID(slaveID);
-    var promise;
-    var length;
-    switch (String(mapping.dataType)) {
-      case 'uint16':
-      case 'int16':
-        length = 1;
-        break;
-      case 'uint32':
-      case 'int32':
-      case 'float':
-        length = 2;
-        break;
-    }
+  function pollModbus(client, mapping, serverID, expression) {
+    let promise;
+    const length = 1;
+
     switch (String(mapping.operation)) {
       case 'fc1':
         promise = client.readCoils(mapping.register, length);
@@ -92,40 +89,50 @@ module.exports = function(app) {
       case 'fc4':
         promise = client.readInputRegisters(mapping.register, length);
     }
-    promise.then(data => handleData(data, mapping, slaveID, expression))
+    promise.then(data => handleData(data, mapping, serverID, expression))
       .catch(catchError);
   }
 
   /**
-   * Setup the connection to a server 
+   * Setup the connection to a server
    * and add create all timers to poll the registers
    */
   function setupConnection(connection) {
     // connect to modbus server.
-    var client = new ModbusRTU();
-    app.debug("setting up connection to " + connection.connection.ip + ":" + connection.connection.port);
-    var promise = client.connectTCP(connection.connection.ip, {
-      port: connection.connection.port
-    }).then(function() { // only runs if connectTCP was successful
-      // setup a timer to poll modbus server for each mapping
+
+    const Serialport = require('serialport')
+    const socket = new Serialport(connection.connection.devicepath, {
+      baudRate: connection.connection.baudrate,
+      Parity: 'none',
+      stopBits: 1,
+      dataBits: 8
+    })
+
+    socket.on('open', function () {
+      app.debug("serial connection " + connection.connection.devicepath + " is open, now creating clients")
+
       app.debug("setting up timers");
-      connection.slaves.forEach(
-        slave => slave.mappings.forEach(
-          mapping => timers.push(
+      connection.servers.forEach(function(server) {
+        const client = new Modbus.client.RTU(socket, server.serverID)
+
+        server.mappings.forEach(function(mapping) {
+          timers.push(
             setInterval(pollModbus, connection.pollingInterval * 1000,
-              client, mapping, slave.slaveID, jexl.compile(mapping.conversion))
+              client, mapping, server.serverID, jexl.compile(mapping.conversion))
           )
-        )
-      );
-      clients.push(client);
-    }, function(error) { //handle errors in the connectTCP method
-      var message = "an error occured while connecting to the modbus server: " +
-        error.message;
+        })
+
+        clients.push(client);
+      });
+    });
+
+    socket.on('error', function (err) {
+      const message = "an error occured while setting up serial connection " + connection.connection.devicepath + ": " + err;
+
       app.debug(message);
       app.setProviderError(message);
-      client.close();
     });
-    promises.push(promise);
+
   }
 
   // called when the plugin is started
@@ -134,16 +141,12 @@ module.exports = function(app) {
     plugin.options = options;
     app.debug('Plugin started');
     options.connections.forEach(setupConnection);
-    // wait for all promises setup in the loop to resolve
-    Promise.allSettled(promises).then(function() {
-      app.debug('promises resolved');
-      if (clients.length == 0) {
-        plugin.stop();
-      } else {
-        app.setProviderStatus("Running");
-      }
-    });
 
+    if (clients.length == 0) {
+      plugin.stop();
+    } else {
+      app.setProviderStatus("Running");
+    }
 
   };
 
@@ -176,28 +179,28 @@ module.exports = function(app) {
               type: 'object',
               title: "connection information",
               properties: {
-                ip: {
+                devicepath: {
                   type: 'string',
-                  title: "ip address",
-                  default: "127.0.0.1"
+                  title: "device path",
+                  default: "/dev/ttyUSB0"
                 },
-                port: {
+                baudrate: {
                   type: 'number',
-                  title: "port",
-                  default: 8502
+                  title: "Connection speed (a.k.a. baudrate)",
+                  default: 9600
                 }
               }
             },
-            slaves: {
+            servers: {
               type: 'array',
-              title: "slaves",
+              title: "servers",
               items: {
                 type: 'object',
-                title: 'Slave',
+                title: 'Server',
                 properties: {
-                  slaveID: {
+                  serverID: {
                     type: 'number',
-                    title: "SlaveID",
+                    title: "ServerID",
                     default: 0
                   },
                   mappings: {
@@ -227,13 +230,10 @@ module.exports = function(app) {
                         dataType: {
                           type: 'string',
                           title: 'DataType',
-                          enum: ['uint16', 'int16', 'uint32', 'int32', 'float'],
+                          enum: ['uint16', 'int16'],
                           enumNames: [
-                            'Unsigned 16 bit integer',
-                            '16 bit integer',
-                            'Unisgned 32 bit integer',
-                            '32 bit integer',
-                            'IEEE 754 single precision'
+                            '16 bit integer (unsigned, 0..65535)',
+                            '16 bit integer (signed, -32767..32767)'
                           ],
                           default: 'int16'
                         },
@@ -266,13 +266,13 @@ module.exports = function(app) {
         orderable: false
       },
       items: {
-        "ui:order": ["connection", "pollingInterval", "slaves"],
-        slaves: {
+        "ui:order": ["connection", "pollingInterval", "servers"],
+        servers: {
           "ui:options": {
             orderable: false
           },
           items: {
-            "ui:order": ["slaveID", "mappings"],
+            "ui:order": ["serverID", "mappings"],
             mappings: {
               "ui:options": {
                 orderable: false

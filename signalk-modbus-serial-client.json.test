@@ -1,0 +1,191 @@
+{
+  "configuration": {
+    "connections": [
+      {
+        "pollingInterval": 5,
+        "connection": {
+          "devicepath": "/tmp/pty-client",
+          "baudrate": 115200
+        },
+        "servers": [
+          {
+            "serverID": 1,
+            "mappings": [
+              {
+                "operation": "fc1",
+                "register": 0,
+                "dataType": "int16",
+                "path": "modbus.test.coil.0",
+                "conversion": "x"
+              },
+              {
+                "operation": "fc1",
+                "register": 1,
+                "dataType": "int16",
+                "path": "modbus.test.coil.1",
+                "conversion": "x"
+              },
+              {
+                "operation": "fc1",
+                "register": 2,
+                "dataType": "int16",
+                "path": "modbus.test.coil.2",
+                "conversion": "x"
+              },
+              {
+                "operation": "fc1",
+                "register": 3,
+                "dataType": "int16",
+                "path": "modbus.test.coil.3",
+                "conversion": "x"
+              },
+              {
+                "operation": "fc1",
+                "register": 4,
+                "dataType": "int16",
+                "path": "modbus.test.coil.4",
+                "conversion": "x"
+              },
+              {
+                "operation": "fc1",
+                "register": 5,
+                "dataType": "int16",
+                "path": "modbus.test.coil.5",
+                "conversion": "x"
+              },
+              {
+                "operation": "fc1",
+                "register": 6,
+                "dataType": "int16",
+                "path": "modbus.test.coil.6",
+                "conversion": "x"
+              },
+              {
+                "operation": "fc1",
+                "register": 7,
+                "dataType": "int16",
+                "path": "modbus.test.coil.7",
+                "conversion": "x"
+              },
+              {
+                "operation": "fc2",
+                "register": 0,
+                "dataType": "int16",
+                "path": "modbus.test.discreteInput.0",
+                "conversion": "x"
+              },
+              {
+                "operation": "fc2",
+                "register": 1,
+                "dataType": "int16",
+                "path": "modbus.test.discreteInput.1",
+                "conversion": "x"
+              },
+              {
+                "operation": "fc2",
+                "register": 2,
+                "dataType": "int16",
+                "path": "modbus.test.discreteInput.2",
+                "conversion": "x"
+              },
+              {
+                "operation": "fc2",
+                "register": 3,
+                "dataType": "int16",
+                "path": "modbus.test.discreteInput.3",
+                "conversion": "x"
+              },
+              {
+                "operation": "fc2",
+                "register": 4,
+                "dataType": "int16",
+                "path": "modbus.test.discreteInput.4",
+                "conversion": "x"
+              },
+              {
+                "operation": "fc2",
+                "register": 5,
+                "dataType": "int16",
+                "path": "modbus.test.discreteInput.5",
+                "conversion": "x"
+              },
+              {
+                "operation": "fc2",
+                "register": 6,
+                "dataType": "int16",
+                "path": "modbus.test.discreteInput.6",
+                "conversion": "x"
+              },
+              {
+                "operation": "fc2",
+                "register": 7,
+                "dataType": "int16",
+                "path": "modbus.test.discreteInput.7",
+                "conversion": "x"
+              },
+              {
+                "operation": "fc3",
+                "register": 0,
+                "dataType": "uint16",
+                "path": "modbus.test.holding.uint16.min",
+                "conversion": "x"
+              },
+              {
+                "operation": "fc3",
+                "register": 1,
+                "dataType": "uint16",
+                "path": "modbus.test.holding.uint16.max",
+                "conversion": "x"
+              },
+              {
+                "operation": "fc3",
+                "register": 2,
+                "dataType": "int16",
+                "path": "modbus.test.holding.int16.min",
+                "conversion": "x"
+              },
+              {
+                "operation": "fc3",
+                "register": 3,
+                "dataType": "int16",
+                "path": "modbus.test.holding.int16.max",
+                "conversion": "x"
+              },
+              {
+                "operation": "fc4",
+                "register": 0,
+                "dataType": "uint16",
+                "path": "modbus.test.input.uint16.minPlusOne",
+                "conversion": "x"
+              },
+              {
+                "operation": "fc4",
+                "register": 1,
+                "dataType": "uint16",
+                "path": "modbus.test.input.uint16.maxMinusOne",
+                "conversion": "x"
+              },
+              {
+                "operation": "fc4",
+                "register": 2,
+                "dataType": "int16",
+                "path": "modbus.test.input.int16.minPlusOne",
+                "conversion": "x"
+              },
+              {
+                "operation": "fc4",
+                "register": 3,
+                "dataType": "int16",
+                "path": "modbus.test.input.int16.maxMinusOne",
+                "conversion": "x"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "enabled": true,
+  "enableLogging": true,
+  "enableDebug": false
+}
