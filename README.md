@@ -47,37 +47,7 @@ $ npm link @mplattu/signalk-modbus-serial-plugin
 
 The plugin should now be installed and visible when the server has restarted.
 
-### Virtual Serial Port and Modbus Mock Server Device
+### Tests
 
-If you don't have a Modbus serial interface and/or Modbus server device to create data
-you can use virtual serial port and mock device.
-
-As user:
-
-```
-$ socat -d -d pty,raw,echo=0,link=/tmp/pty-modbus-server pty,raw,echo=0,link=/tmp/pty-modbus-client
-2022/04/29 07:59:19 socat[24636] N PTY is /dev/pts/1
-2022/04/29 07:59:19 socat[24636] N PTY is /dev/pts/2
-2022/04/29 07:59:19 socat[24636] N starting data transfer loop with FDs [5,5] and [7,7]
-```
-
-Now you have two devices (`/dev/pts/1` and `/dev/pts/2`) and permanent symlinks
-(`/tmp/pty-modbus-server` and `/tmp/pty-modbus-client`) which are connected to each
-other.
-
-```
-$ cd modbus-mock-server/
-$ node modbus-mock-server.js
-```
-
-Now you have a mock server listening to `/tmp/pty-modbus-client` (115200 bps) which serves data.
-
-The plugin configuration file `signalk-modbus-serial-client.json.test` reads all data fields
-served by the mock server. Copy this to your SignalK server plugin configuration directory
-(probably `~/.signalk/plugin-config-data/`), e.g.
-
-```
-cp signalk-modbus-serial-client.json.test ~/.signalk/plugin-config-data/signalk-modbus-serial-client.json
-```
-
-Restart the server to make configuration effective.
+The test automation uses Mocha, virtual serial interface and Modbus mock server
+(`modbus-mock-server/`). Executing `make test` should do everything automatically.

@@ -2,10 +2,11 @@
   "configuration": {
     "connections": [
       {
-        "pollingInterval": 5,
+        "pollingInterval": 1,
         "connection": {
-          "devicepath": "/tmp/pty-client",
-          "baudrate": 115200
+          "devicepath": "/tmp/pty-modbus-client",
+          "baudrate": 115200,
+          "timeout": 100
         },
         "servers": [
           {
@@ -178,6 +179,34 @@
                 "dataType": "int16",
                 "path": "modbus.test.input.int16.maxMinusOne",
                 "conversion": "x"
+              },
+              {
+                "operation": "fc3",
+                "register": 0,
+                "dataType": "uint16",
+                "path": "modbus.test.calculation.0",
+                "conversion": "x + 1"
+              },
+              {
+                "operation": "fc3",
+                "register": 2,
+                "dataType": "int16",
+                "path": "modbus.test.calculation.1",
+                "conversion": "x + 1"
+              },
+              {
+                "operation": "fc4",
+                "register": 2,
+                "dataType": "int16",
+                "path": "modbus.test.calculation.2",
+                "conversion": "(x / 2) * 3"
+              },
+              {
+                "operation": "fc4",
+                "register": 1,
+                "dataType": "uint16",
+                "path": "modbus.test.calculation.3",
+                "conversion": "(x / 100)"
               }
             ]
           }

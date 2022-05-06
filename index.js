@@ -3,6 +3,7 @@ const PLUGIN_NAME = 'SignalK Modbus RTU/Serial client';
 module.exports = function(app) {
   var plugin = {};
   const Modbus = require("jsmodbus");
+  var  socket = undefined;
   var clients = [];
   const jexl = require("jexl");
   var timers = [];
@@ -101,7 +102,7 @@ module.exports = function(app) {
     // connect to modbus server.
 
     const Serialport = require('serialport')
-    const socket = new Serialport(connection.connection.devicepath, {
+    socket = new Serialport(connection.connection.devicepath, {
       baudRate: connection.connection.baudrate,
       Parity: 'none',
       stopBits: 1,
@@ -111,9 +112,8 @@ module.exports = function(app) {
     socket.on('open', function () {
       app.debug("serial connection " + connection.connection.devicepath + " is open, now creating clients")
 
-      app.debug("setting up timers");
       connection.servers.forEach(function(server) {
-        const client = new Modbus.client.RTU(socket, server.serverID)
+        const client = new Modbus.client.RTU(socket, server.serverID, connection.connection.timeout)
 
         server.mappings.forEach(function(mapping) {
           timers.push(
@@ -142,16 +142,13 @@ module.exports = function(app) {
     app.debug('Plugin started');
     options.connections.forEach(setupConnection);
 
-    if (clients.length == 0) {
-      plugin.stop();
-    } else {
-      app.setProviderStatus("Running");
-    }
-
+    app.setProviderStatus("Running");
   };
 
   // called when the plugin is stopped or encounters an error
   plugin.stop = function() {
+    socket.close();
+    socket = undefined;
     app.debug('Plugin stopped');
     timers.forEach(timer => clearInterval(timer));
 

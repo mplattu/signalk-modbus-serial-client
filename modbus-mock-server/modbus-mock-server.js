@@ -1,4 +1,4 @@
-const SERIAL_PORT = '/tmp/pty-server';
+const SERIAL_PORT = '/tmp/pty-modbus-server';
 const SERIAL_SPEED = 115200;
 
 const modbus = require('jsmodbus')
