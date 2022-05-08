@@ -11,6 +11,16 @@ For obvious reasons I am using the concepts "server" (the device which produces
 the data) and "client" (the device which reads the data) instead of the traditional
 slave/master terms.
 
+## Configuration
+
+The plugin creates a configuration editor to Server > Plugin config. The configuration
+file is stored to server's `plugin-config-data/signalk-modbus-serial-client.json`.
+
+An attached `signalk-modbus-serial-client-SOLAR.json` should work at least with
+following solar chargers:
+ * EPSolar/EPEver Tracer A/B-Series ([reference](https://github.com/tekk/Tracer-RS485-Modbus-Blynk-V2))
+ * Sunbeam MoonRay MPPT 320 (tested)
+ 
 ## Development
 
 ### Installing SignalK Server
