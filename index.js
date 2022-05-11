@@ -12,42 +12,71 @@ module.exports = function(app) {
   plugin.name = PLUGIN_NAME;
   plugin.description = 'Plugin to import data via Modbus RTU/serial';
 
+
+  function getValueDataType(fcCode, configuredDataType) {
+    if (fcCode == 1 || fcCode == 2) {
+      return 'uint8'
+    }
+
+    const configuredDataTypeStr = String(configuredDataType)
+    if (configuredDataTypeStr == 'uint16' || configuredDataTypeStr == 'int16') {
+      return configuredDataTypeStr
+    }
+
+    app.debug(`Could not detect data type (fcCode: ${fcCode}, configured data type: ${configuredDataTypeStr}) - check your configuration`)
+    app.setProviderError(`Could not detect data type (fcCode: ${fcCode}, configured data type: ${configuredDataTypeStr}) - check your configuration`)
+
+    return null
+  }
+
+  function getValueFromDataBuffer(buffer, dataType) {
+    switch (String(dataType)) {
+      case 'uint8':
+        return buffer.readUInt8(0)
+        break
+      case 'uint16':
+        return buffer.readUInt16BE(0)
+        break
+      case 'int16':
+        return buffer.readInt16BE(0)
+        break
+    }
+
+    app.debug(`Unknown data type ${dataType} - check your configuration`)
+    app.setProviderError(`Unknown data type ${dataType} - check your configuration`)
+
+    return null
+  }
+
+  function getCalculatedValue(rawValue, jexlExpression) {
+    // context for jexl, x is the data, other constants can be added here
+    var context = {
+      x: rawValue
+    }
+
+    return jexlExpression.evalSync(context);
+  }
+
   /**
    * Send a single update to SignalK.
    */
   function handleData(data, mapping, serverID, expression) {
-    app.debug(data);
 
-    var i;
-
-    const buffer = data.response._body._valuesAsBuffer
-
-    if (data.response._body._fc == 1 || data.response._body._fc == 2) {
-      i = buffer.readUInt8(0);
-    }
-    else if (String(mapping.dataType) == 'uint16') {
-      i = buffer.readUInt16BE(0);
-    }
-    else if (String(mapping.dataType) == 'int16') {
-      i = buffer.readInt16BE(0);
-    }
-    else {
-      app.debug("Don't know how to handle this mapping/data - check your configuration")
-      app.debug(mapping)
-      app.debug(data)
+    const dataType = getValueDataType(data.response._body._fc, mapping.dataType)
+    if (dataType == null) {
       return
     }
 
-    // context for jexl, x is the data, other constants can be added here
-    var context = {
-      x: i
-    };
-    var value = expression.evalSync(context);
+    const buffer = data.response._body._valuesAsBuffer
+    const rawValue = getValueFromDataBuffer(buffer, dataType)
+
+    const calculatedValue = getCalculatedValue(rawValue, expression)
+
     // denormalized SignalK delta for a single value
     var delta = {
       values: [{
         path: mapping.path,
-        value: value
+        value: calculatedValue
       }],
       context: app.getSelfPath('uuid'),
       $source: "modbus-serial." + serverID + "." + mapping.register + "." + mapping.operation,
@@ -69,29 +98,37 @@ module.exports = function(app) {
     plugin.stop();
   }
 
+  function getPollModbusPromise(client, operation, register) {
+    switch (String(operation)) {
+      case 'fc1':
+        return client.readCoils(register, 1);
+        break;
+      case 'fc2':
+        return client.readDiscreteInputs(register, 1);
+        break;
+      case 'fc3':
+        return client.readHoldingRegisters(register, 1);
+        break;
+      case 'fc4':
+        return client.readInputRegisters(register, 1);
+    }
+
+    app.debug(`Unknown operation ${operation} for register ${register} - check your configuration`)
+    app.setProviderError(`Unknown operation ${operation} for register ${register} - check your configuration`)
+
+    return null
+  }
+
   /**
    * Ask the server for the contents of a single register.
    * calls handleData to send the data to SignalK
    */
   function pollModbus(client, mapping, serverID, expression) {
-    let promise;
-    const length = 1;
-
-    switch (String(mapping.operation)) {
-      case 'fc1':
-        promise = client.readCoils(mapping.register, length);
-        break;
-      case 'fc2':
-        promise = client.readDiscreteInputs(mapping.register, length);
-        break;
-      case 'fc3':
-        promise = client.readHoldingRegisters(mapping.register, length);
-        break;
-      case 'fc4':
-        promise = client.readInputRegisters(mapping.register, length);
+    const promise = getPollModbusPromise(client, mapping.operation, mapping.register)
+    if (promise != null) {
+      promise.then(data => handleData(data, mapping, serverID, expression))
+        .catch(catchError);
     }
-    promise.then(data => handleData(data, mapping, serverID, expression))
-      .catch(catchError);
   }
 
   /**
