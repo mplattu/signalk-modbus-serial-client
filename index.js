@@ -24,7 +24,7 @@ module.exports = function(app) {
     }
 
     app.debug(`Could not detect data type (fcCode: ${fcCode}, configured data type: ${configuredDataTypeStr}) - check your configuration`)
-    app.setProviderError(`Could not detect data type (fcCode: ${fcCode}, configured data type: ${configuredDataTypeStr}) - check your configuration`)
+    app.setPluginError(`Could not detect data type (fcCode: ${fcCode}, configured data type: ${configuredDataTypeStr}) - check your configuration`)
 
     return null
   }
@@ -43,7 +43,7 @@ module.exports = function(app) {
     }
 
     app.debug(`Unknown data type ${dataType} - check your configuration`)
-    app.setProviderError(`Unknown data type ${dataType} - check your configuration`)
+    app.setPluginError(`Unknown data type ${dataType} - check your configuration`)
 
     return null
   }
@@ -93,7 +93,7 @@ module.exports = function(app) {
    * Logs the error and stops the plugin
    */
   function catchError(error) {
-    app.setProviderError("an error occured: " + error.message);
+    app.setPluginError("an error occured: " + error.message);
     app.debug(error);
     plugin.stop();
   }
@@ -114,7 +114,7 @@ module.exports = function(app) {
     }
 
     app.debug(`Unknown operation ${operation} for register ${register} - check your configuration`)
-    app.setProviderError(`Unknown operation ${operation} for register ${register} - check your configuration`)
+    app.setPluginError(`Unknown operation ${operation} for register ${register} - check your configuration`)
 
     return null
   }
@@ -167,19 +167,19 @@ module.exports = function(app) {
       const message = "an error occured while setting up serial connection " + connection.connection.devicepath + ": " + err;
 
       app.debug(message);
-      app.setProviderError(message);
+      app.setPluginError(message);
     });
 
   }
 
   // called when the plugin is started
   plugin.start = function(options, restartPlugin) {
-    app.setProviderStatus("Initializing");
+    app.setPluginStatus("Initializing");
     plugin.options = options;
     app.debug('Plugin started');
     options.connections.forEach(setupConnection);
 
-    app.setProviderStatus("Running");
+    app.setPluginStatus("Running");
   };
 
   // called when the plugin is stopped or encounters an error
@@ -189,7 +189,7 @@ module.exports = function(app) {
     app.debug('Plugin stopped');
     timers.forEach(timer => clearInterval(timer));
 
-    app.setProviderStatus('Stopped');
+    app.setPluginStatus('Stopped');
   };
 
   // The plugin configuration
