@@ -6,4 +6,4 @@ test:
 	node modbus-mock-server/modbus-mock-server.js &
 	node_modules/mocha/bin/mocha.js
 	kill -TERM `cat /tmp/pty-modbus-socat-lock`
-	stty sane
+	-stty sane
