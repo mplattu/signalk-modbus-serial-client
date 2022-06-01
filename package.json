@@ -1,14 +1,14 @@
 {
   "name": "@mplattu/signalk-modbus-serial-client",
   "version": "0.0.1",
-  "description": "a plugin for SignalK to read data via modbus serial",
+  "description": "A plugin for SignalK to read data via modbus serial",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "make test"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mplattu/signalk-modbus-serial-plugin.git"
+    "url": "git+https://github.com/mplattu/signalk-modbus-serial-client.git"
   },
   "keywords": [
     "signalk-node-server-plugin"
@@ -16,9 +16,9 @@
   "author": "Matti Lattu <matti.lattu@iki.fi>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mplattu/signalk-modbus-serial-plugin/issues"
+    "url": "https://github.com/mplattu/signalk-modbus-serial-client/issues"
   },
-  "homepage": "https://github.com/mplattu/signalk-modbus-serial-plugin#readme",
+  "homepage": "https://github.com/mplattu/signalk-modbus-serial-client#readme",
   "dependencies": {
     "jexl": "^2.2.2",
     "jsmodbus": "^4.0.6",
