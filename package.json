@@ -11,7 +11,7 @@
     "url": "git+https://github.com/mplattu/signalk-modbus-serial-client.git"
   },
   "keywords": [
-    "signalk-node-server-plugin"
+    ""
   ],
   "author": "Matti Lattu <matti.lattu@iki.fi>",
   "license": "MIT",
