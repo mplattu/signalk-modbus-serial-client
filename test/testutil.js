@@ -4,12 +4,12 @@ const fs = require('fs');
 module.exports = {
   createAppWithPlugin: function (onHandleMessage, handleMessagePathFilter, showDebugMessages) {
     const app = {
-      setProviderStatus: (message) => {
+      setPluginStatus: (message) => {
         if (showDebugMessages) {
-          console.debug('setProviderStatus: %o', message)
+          console.debug('setPluginStatus: %o', message)
         }
       },
-      setProviderError: (message) => {
+      setPluginError: (message) => {
         if (showDebugMessages) {
           console.debug('setProviderError: %o', message)
         }
