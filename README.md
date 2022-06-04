@@ -59,3 +59,7 @@ The plugin should now be installed and visible when the server has restarted.
 
 The test automation uses Mocha, virtual serial interface and Modbus mock server
 (`modbus-mock-server/`). Executing `make test` should do everything automatically.
+
+## Changelog
+
+* `0.1.0` (4-APR-2022) First public version for beta testing.
