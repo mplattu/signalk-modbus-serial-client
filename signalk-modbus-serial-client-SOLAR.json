@@ -4,7 +4,7 @@
       {
         "pollingInterval": 1,
         "connection": {
-          "devicepath": "/dev/ttyUSB0",
+          "devicepath": "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AB0KUBEH-if00-port0",
           "baudrate": 115200
         },
         "servers": [
@@ -14,14 +14,14 @@
               {
                 "operation": "fc4",
                 "register": 12544,
-                "dataType": "int8",
+                "dataType": "int16",
                 "path": "electrical.solar.flybridge.panelVoltage",
                 "conversion": "x / 100"
               },
               {
                 "operation": "fc4",
                 "register": 12545,
-                "dataType": "int8",
+                "dataType": "int16",
                 "path": "electrical.solar.flybridge.panelCurrent",
                 "conversion": "x / 100"
               },
@@ -35,14 +35,14 @@
               {
                 "operation": "fc4",
                 "register": 12548,
-                "dataType": "int8",
+                "dataType": "int16",
                 "path": "electrical.solar.flybridge.batteryVoltage",
                 "conversion": "x / 100"
               },
               {
                 "operation": "fc4",
                 "register": 12549,
-                "dataType": "int8",
+                "dataType": "int16",
                 "path": "electrical.solar.flybridge.current",
                 "conversion": "x / 100"
               },
@@ -56,7 +56,7 @@
               {
                 "operation": "fc4",
                 "register": 12552,
-                "dataType": "int8",
+                "dataType": "int16",
                 "path": "electrical.solar.flybridge.loadCurrent",
                 "conversion": "x / 100"
               },
@@ -70,14 +70,14 @@
               {
                 "operation": "fc4",
                 "register": 12570,
-                "dataType": "int8",
+                "dataType": "int16",
                 "path": "electrical.solar.flybridge.batteryRemaining",
                 "conversion": "x"
               },
               {
                 "operation": "fc4",
                 "register": 12571,
-                "dataType": "int8",
+                "dataType": "int16",
                 "path": "electrical.solar.flybridge.batteryTemperature",
                 "conversion": "x / 100"
               }
