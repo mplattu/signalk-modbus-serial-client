@@ -19,8 +19,8 @@ file is stored to server's `plugin-config-data/signalk-modbus-serial-client.json
 An attached `signalk-modbus-serial-client-SOLAR.json` should work at least with
 following solar chargers:
  * EPSolar/EPEver Tracer A/B-Series ([reference](https://github.com/tekk/Tracer-RS485-Modbus-Blynk-V2))
- * Sunbeam MoonRay MPPT 320 (tested)
- 
+ * Sunbeam MoonRay MPPT 320 (tested, use `signalk-modbus-serial-client-SOLAR.json` as `plugin-config-data/signalk-modbus-serial-client.json`)
+
 ## Development
 
 ### Installing SignalK Server
