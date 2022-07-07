@@ -87,15 +87,22 @@ module.exports = function(app) {
       updates: [delta]
     };
     app.handleMessage(PLUGIN_ID, deltas);
+    app.setPluginStatus("Receiving data normally")
   }
 
   /**
    * Logs the error and stops the plugin
    */
   function catchError(error) {
-    app.setPluginError("an error occured: " + error.message);
     app.debug(error);
-    plugin.stop();
+
+    if (Modbus.errors.isUserRequestError(error)) {
+      app.setPluginError("Error: " + error.message + ", still trying...")
+    }
+    else {
+      app.setPluginError("Fatal error: " + error.message + ", stopping the plugin")
+      plugin.stop();
+    }
   }
 
   function getPollModbusPromise(client, operation, register) {
