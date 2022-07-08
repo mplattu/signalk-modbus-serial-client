@@ -13,6 +13,13 @@
             "serverID": 1,
             "mappings": [
               {
+                "operation": "fc4",
+                "register": 0,
+                "dataType": "uint16",
+                "path": "modbus.test.errors.testValue",
+                "conversion": "x"
+              },
+              {
                 "operation": "fc1",
                 "register": 0,
                 "dataType": "int16",

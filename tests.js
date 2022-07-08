@@ -1,0 +1,6 @@
+require("./test/continueIfErrors.js")
+require("./test/FC1.js")
+require("./test/FC2.js")
+require("./test/FC3.js")
+require("./test/FC4.js")
+require("./test/Calculation.js")
