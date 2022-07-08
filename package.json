@@ -1,6 +1,6 @@
 {
   "name": "@mplattu/signalk-modbus-serial-client",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A plugin for SignalK to read data via Modbus serial",
   "main": "index.js",
   "scripts": {
