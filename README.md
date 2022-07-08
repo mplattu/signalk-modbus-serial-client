@@ -143,6 +143,8 @@ The test automation uses Mocha, virtual serial interface and Modbus mock server
 
 ## Changelog
 
+* `1.0.1` (8-JUL-2022) Make plugin more robust by not stopping it in case Modbus
+   connection fails on user errors, e.g. timeout.
 * `1.0.0` (2-JUL-2022) Official release after successful field testing. Added
    instructions of adding metadata.
 * `0.1.0` (4-APR-2022) First public version for beta testing.
